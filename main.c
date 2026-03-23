@@ -48,6 +48,17 @@ static int parse_first_line(char *reply, char *line1, size_t line1_sz, char **re
 }
 
 static void cmd_show_nodes(state_t *st, const char *net) {
+    if (st->direct_join) {
+        printf("Nodes in net %s:\n", st->net);
+        printf("%s\n", st->id);
+        for (size_t i = 0; i < st->ncount; i++) {
+            if (st->nei[i].active && st->nei[i].handshake && st->nei[i].id[0]) {
+                printf("%s\n", st->nei[i].id);
+            }
+        }
+        return;
+    }
+
     char reply[2048];
     char line1[MAX_LINE];
     char *rest = NULL;
@@ -128,6 +139,9 @@ static void cmd_join(state_t *st, const char *net, const char *id) {
     st->id[2] = 0;
     st->listen_fd = fd;
     st->joined = true;
+    st->direct_join = false;
+    st->route_count = 0;
+    memset(st->routes, 0, sizeof(st->routes));
 
     printf("JOIN ok: net=%s id=%s\n", st->net, st->id);
 }
@@ -155,6 +169,9 @@ static void cmd_direct_join(state_t *st, const char *net, const char *id) {
     st->id[2] = 0;
     st->listen_fd = fd;
     st->joined = true;
+    st->direct_join = true;
+    st->route_count = 0;
+    memset(st->routes, 0, sizeof(st->routes));
 
     printf("JOIN ok: net=%s id=%s\n", st->net, st->id);
 }
@@ -180,14 +197,19 @@ static void cmd_leave(state_t *st) {
         st->listen_fd = -1;
     }
 
-    char reply[2048];
-    if (do_reg_query(st, 3, old_net, old_id, reply, sizeof(reply)) < 0) {
-        printf("Erro no cancelamento de registo.\n");
+    if (!st->direct_join) {
+        char reply[2048];
+        if (do_reg_query(st, 3, old_net, old_id, reply, sizeof(reply)) < 0) {
+            printf("Erro no cancelamento de registo.\n");
+        }
     }
 
     st->joined = false;
+    st->direct_join = false;
     st->net[0] = 0;
     st->id[0] = 0;
+    st->route_count = 0;
+    memset(st->routes, 0, sizeof(st->routes));
 
     printf("LEAVE ok.\n");
 }
@@ -333,6 +355,22 @@ int main(int argc, char **argv) {
                      strcasecmp(t[0], "sg") == 0) {
                 cmd_show_neighbors(&st);
             }
+            else if ((strcasecmp(t[0], "announce") == 0 || strcasecmp(t[0], "a") == 0)) {
+                cmd_announce(&st);
+            }
+            else if ((strcasecmp(t[0], "show") == 0 && c >= 3 && strcasecmp(t[1], "routing") == 0) ||
+                     (strcasecmp(t[0], "sr") == 0 && c >= 2)) {
+                if (strcasecmp(t[0], "sr") == 0) cmd_show_routing(&st, t[1]);
+                else cmd_show_routing(&st, t[2]);
+            }
+            else if ((strcasecmp(t[0], "start") == 0 && c >= 2 && strcasecmp(t[1], "monitor") == 0) ||
+                     strcasecmp(t[0], "sm") == 0) {
+                cmd_monitor(&st, true);
+            }
+            else if ((strcasecmp(t[0], "end") == 0 && c >= 2 && strcasecmp(t[1], "monitor") == 0) ||
+                     strcasecmp(t[0], "em") == 0) {
+                cmd_monitor(&st, false);
+            }
             else if ((strcasecmp(t[0], "add") == 0 && c >= 3 && strcasecmp(t[1], "edge") == 0) ||
                      (strcasecmp(t[0], "ae") == 0 && c >= 2)) {
                 if (strcasecmp(t[0], "ae") == 0) cmd_add_edge(&st, t[1]);
@@ -352,6 +390,12 @@ int main(int argc, char **argv) {
                      (strcasecmp(t[0], "re") == 0 && c >= 2)) {
                 if (strcasecmp(t[0], "re") == 0) cmd_remove_edge(&st, t[1]);
                 else cmd_remove_edge(&st, t[2]);
+            }
+            else if ((strcasecmp(t[0], "message") == 0 && c >= 3) ||
+                     (strcasecmp(t[0], "m") == 0 && c >= 3)) {
+                char *payload = strstr(line, t[2]);
+                if (!payload) payload = t[2];
+                cmd_message(&st, t[1], payload);
             }
             else {
                 printf("comando?\n");
