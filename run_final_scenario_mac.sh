@@ -131,11 +131,16 @@ EOF
 cat > "$TMP_DIR/run_nc.sh" <<EOF
 #!/bin/zsh
 cd "$ROOT_DIR"
-echo "[nc] waiting before connecting to node 04"
+echo "[nc] waiting for node 04 to start listening on $IP:$P4"
+until nc -z "$IP" "$P4" >/dev/null 2>&1; do
+  sleep 1
+done
+
+echo "[nc] node 04 is up; waiting before injecting node 99"
 {
-  sleep 27
+  sleep 25
   echo "NEIGHBOR 99"
-  sleep 13
+  sleep 15
   echo "UNCOORD 01"
   sleep 5
 } | nc "$IP" "$P4"
