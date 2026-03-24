@@ -309,7 +309,7 @@ static void handle_msg(state_t *st, neighbor_t *n, const char *line) {
         strncpy(n->id, new_id, 2);
         n->id[2] = 0;
         n->handshake = true;
-        printf("Novo vizinho: %s (%s:%u)\n", n->id, n->ip, n->port);
+        printf("Novo vizinho: %s\n", n->id);
         notify_neighbor_confirmed(st, n);
         return;
     }
@@ -487,7 +487,7 @@ static int connect_to_neighbor(state_t *st, const char *id, const char *ip, uint
     n->id[2] = 0;
 
     send_line(fd, "NEIGHBOR %s", st->id);
-    printf("ADD EDGE ok: %s (%s:%u)\n", id, ip, port);
+    printf("ADD EDGE ok: %s\n", id);
     return 0;
 }
 
