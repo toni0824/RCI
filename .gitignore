@@ -2,3 +2,6 @@ OWR
 *.o
 
 .scenario_tmp/
+init.html
+rep.html
+tejo_rep_*.html

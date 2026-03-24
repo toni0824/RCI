@@ -263,6 +263,11 @@ Foram adicionados varios scripts para validar cenarios diferentes no macOS:
   - testa o cenario final completo com coordenacao
   - cobre anel, no artificial `99`, `COORD`, `UNCOORD` e convergencia para `INF`
 
+- `./run_tejo_basic_test_mac.sh`
+  - testa uma sessao oficial no `tejo`
+  - arranca o teu `OWR`, liga a um no residente e envia `announce` por `nc -u`
+  - guarda um relatorio parcial HTML do no residente
+
 Todos aceitam opcionalmente o IP da maquina:
 
 ```bash
@@ -271,6 +276,22 @@ Todos aceitam opcionalmente o IP da maquina:
 ./run_message_scenario_mac.sh 10.19.5.49
 ./run_final_scenario_mac.sh 10.19.5.49
 ```
+
+Exemplo para a sessao do `tejo` mostrada no manual/`init.html`:
+
+```bash
+./run_tejo_basic_test_mac.sh 10.19.233.157 58001 58861 10 58862 106 01 2589460
+```
+
+Parametros do script do `tejo`:
+- `IP_local`
+- `porto_TCP_local`
+- `porto_UDP_do_node_server`
+- `id_do_no_residente`
+- `porto_UDP_do_no_residente`
+- `rede/grupo`
+- `id_do_teu_no`
+- `codigo_da_sessao`
 
 ## Estrutura principal
 
