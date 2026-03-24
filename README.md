@@ -218,6 +218,31 @@ ROUTING 01 state=exp distance=INF next=-
 
 Isto indica que o no `01` ficou isolado e que nao existe ciclo de encaminhamento residual entre `03` e `04`.
 
+### Script automatico no macOS
+
+Existe um script para abrir o Terminal e correr automaticamente este cenario:
+
+```bash
+./run_final_scenario_mac.sh
+```
+
+Ou com IP explicito:
+
+```bash
+./run_final_scenario_mac.sh 10.19.5.49
+```
+
+O script:
+- compila o projeto com `make`
+- abre uma janela para o servidor UDP
+- abre 4 janelas para os nos `01`, `02`, `03` e `04`
+- abre uma janela com `nc` para simular o no artificial `99`
+- executa a sequencia completa de comandos com tempos de espera entre passos
+
+Nota:
+- o script usa `osascript` e foi pensado para o Terminal do macOS
+- as janelas ficam abertas no fim com `exec zsh`
+
 ## Estrutura principal
 
 - `main.c` - parser de comandos, ciclo com `select()`, `join/leave/show`
