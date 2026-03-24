@@ -80,6 +80,13 @@ static route_entry_t *ensure_route(state_t *st, const char dest[3]) {
 static void send_route_to_one(state_t *st, neighbor_t *n, route_entry_t *rt) {
     if (!neighbor_is_ready(n) || !rt || !rt->present) return;
     int adv = rt->valid ? rt->distance : ROUTE_INF;
+
+    /* Poison reverse: do not advertise back to the current successor a
+       usable route that depends on that same neighbor. */
+    if (rt->valid && rt->successor[0] && strncmp(rt->successor, n->id, 2) == 0) {
+        adv = ROUTE_INF;
+    }
+
     send_line(n->fd, "ROUTE %s %d", rt->dest, adv);
     monitor_log(st, "-> ROUTE %s %d via %s", rt->dest, adv, n->id);
 }
