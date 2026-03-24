@@ -1,2 +1,4 @@
 OWR
 *.o
+
+.scenario_tmp/

@@ -243,6 +243,35 @@ Nota:
 - o script usa `osascript` e foi pensado para o Terminal do macOS
 - as janelas ficam abertas no fim com `exec zsh`
 
+## Outros scripts de teste
+
+Foram adicionados varios scripts para validar cenarios diferentes no macOS:
+
+- `./run_intermediate_scenario_mac.sh`
+  - testa a parte intermédia com servidor UDP
+  - cobre `join`, `show nodes`, `add edge`, `show neighbors`, `remove edge`, `leave`
+
+- `./run_direct_scenario_mac.sh`
+  - testa o modo sem servidor
+  - cobre `direct join`, `direct add edge`, `show neighbors`, `leave`
+
+- `./run_message_scenario_mac.sh`
+  - testa propagacao de rotas e envio de mensagens
+  - cobre `announce`, `show routing`, `message`
+
+- `./run_final_scenario_mac.sh`
+  - testa o cenario final completo com coordenacao
+  - cobre anel, no artificial `99`, `COORD`, `UNCOORD` e convergencia para `INF`
+
+Todos aceitam opcionalmente o IP da maquina:
+
+```bash
+./run_intermediate_scenario_mac.sh 10.19.5.49
+./run_direct_scenario_mac.sh 10.19.5.49
+./run_message_scenario_mac.sh 10.19.5.49
+./run_final_scenario_mac.sh 10.19.5.49
+```
+
 ## Estrutura principal
 
 - `main.c` - parser de comandos, ciclo com `select()`, `join/leave/show`
