@@ -268,6 +268,19 @@ Foram adicionados varios scripts para validar cenarios diferentes no macOS:
   - arranca o teu `OWR`, liga a um no residente e envia `announce` por `nc -u`
   - guarda um relatorio parcial HTML do no residente
 
+- `./run_tejo_intermediate_scenario_mac.sh`
+  - testa no `tejo` a parte intermédia
+  - `join`, `show nodes`, `add edge`, `show neighbors`, `remove edge`, `leave`
+
+- `./run_tejo_message_scenario_mac.sh`
+  - testa no `tejo` propagacao de rotas e chat
+  - `announce`, `show routing`, `message`
+
+- `./run_tejo_final_scenario_mac.sh`
+  - testa no `tejo` um cenario final com coordenacao
+  - usa o teu no local mais os nos residentes `10`, `20`, `30`
+  - injeta um no artificial `99` com `nc`
+
 Todos aceitam opcionalmente o IP da maquina:
 
 ```bash
@@ -281,6 +294,14 @@ Exemplo para a sessao do `tejo` mostrada no manual/`init.html`:
 
 ```bash
 ./run_tejo_basic_test_mac.sh 10.19.233.157 58001 58861 10 58862 106 01 2589460
+```
+
+Outros exemplos no `tejo`:
+
+```bash
+./run_tejo_intermediate_scenario_mac.sh 10.19.233.157 58001 58861 10 58862 106 01 2589460
+./run_tejo_message_scenario_mac.sh 10.19.233.157 58001 58861 10 58862 106 01 2589460
+./run_tejo_final_scenario_mac.sh 10.19.233.157 58004 58861 106 40 10 58862 20 58863 30 58864 2589460
 ```
 
 Parametros do script do `tejo`:
