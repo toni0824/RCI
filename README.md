@@ -113,6 +113,111 @@ Enviar mensagem:
 no 04: message 01 ola
 ```
 
+## Cenario final validado
+
+O cenario seguinte foi usado para validar a parte final do projeto:
+
+1. criar a linha `01-02-03-04`
+2. anunciar o no `01`
+3. fechar o anel com a aresta `01-04`
+4. criar um no artificial `99` ligado ao no `04` com `nc`
+5. remover as arestas `01-04` e `01-02`
+6. enviar `UNCOORD 01` na sessao `nc`
+7. verificar a convergencia final
+
+### Arranque
+
+Servidor UDP:
+
+```bash
+python3 59000.py 10.19.5.49 59000
+```
+
+Nos:
+
+```bash
+./OWR 10.19.5.49 58001 10.19.5.49 59000
+./OWR 10.19.5.49 58002 10.19.5.49 59000
+./OWR 10.19.5.49 58003 10.19.5.49 59000
+./OWR 10.19.5.49 58004 10.19.5.49 59000
+```
+
+### Sequencia de comandos
+
+Nos 4 terminais:
+
+```text
+T1: join 001 01
+T1: start monitor
+
+T2: join 001 02
+T2: start monitor
+
+T3: join 001 03
+T3: start monitor
+
+T4: join 001 04
+T4: start monitor
+```
+
+Criar a linha:
+
+```text
+T1: add edge 02
+T2: add edge 03
+T3: add edge 04
+```
+
+Anunciar e testar:
+
+```text
+T1: announce
+T4: show routing 01
+T4: message 01 ola
+```
+
+Fechar o anel:
+
+```text
+T1: add edge 04
+T4: show routing 01
+```
+
+Criar o no artificial:
+
+```bash
+nc 10.19.5.49 58004
+```
+
+Na sessao `nc`:
+
+```text
+NEIGHBOR 99
+```
+
+Remover arestas:
+
+```text
+T1: remove edge 04
+T1: remove edge 02
+```
+
+Terminar a coordenacao na sessao `nc`:
+
+```text
+UNCOORD 01
+```
+
+### Resultado esperado
+
+Depois da convergencia, o no `04` deve ficar sem rota valida para `01`:
+
+```text
+ROUTING 01 state=exp distance=INF next=-
+```
+
+Isto indica que o no `01` ficou isolado e que nao existe ciclo de encaminhamento residual entre `03` e `04`.
+
 ## Estrutura principal
 
 - `main.c` - parser de comandos, ciclo com `select()`, `join/leave/show`
