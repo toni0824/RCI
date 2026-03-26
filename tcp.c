@@ -320,6 +320,12 @@ static void handle_msg(state_t *st, neighbor_t *n, const char *line) {
         if (!rt || idx < 0) return;
 
         int advertised = atoi(t[2]);
+
+        if (rt->state == ROUTE_STATE_COORDINATION && rt->waiting[idx]) {
+            monitor_log(st, "<- ROUTE %s %d de %s (ignored during coord)", t[1], advertised, n->id);
+            return;
+        }
+
         rt->advertised[idx] = advertised;
         monitor_log(st, "<- ROUTE %s %d de %s", t[1], advertised, n->id);
 
@@ -348,8 +354,14 @@ static void handle_msg(state_t *st, neighbor_t *n, const char *line) {
 
     if (strcasecmp(t[0], "COORD") == 0 && argc >= 2) {
         route_entry_t *rt = ensure_route(st, t[1]);
+        int idx = neighbor_index(st, n);
         monitor_log(st, "<- COORD %s de %s", t[1], n->id);
         if (!rt) return;
+
+        if (idx >= 0) {
+            rt->advertised[idx] = ROUTE_INF;
+            route_update_from_advertisements(st, rt);
+        }
 
         if (rt->state == ROUTE_STATE_COORDINATION) {
             send_line(n->fd, "UNCOORD %s", rt->dest);
@@ -374,7 +386,13 @@ static void handle_msg(state_t *st, neighbor_t *n, const char *line) {
         if (!rt) return;
 
         int idx = neighbor_index(st, n);
-        if (idx >= 0) rt->waiting[idx] = false;
+        if (idx >= 0) {
+            rt->waiting[idx] = false;
+            /* Drop the pre-coordination advertisement from this neighbor.
+               We only trust a fresh ROUTE received after UNCOORD. */
+            rt->advertised[idx] = ROUTE_INF;
+            route_update_from_advertisements(st, rt);
+        }
         maybe_finish_coordination(st, rt);
         return;
     }
