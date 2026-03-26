@@ -281,32 +281,6 @@ Isto confirma que:
 - mensagem: ok
 - final dificil: ok
 
-## Extra: Playground UI
-
-Existe tambem uma pasta isolada para demonstracao local em browser:
-
-```text
-playground_ui/
-```
-
-Serve para:
-
-- lancar os scripts ja existentes por botao
-- ver logs dos runs no browser
-- arrancar/parar capturas com `tshark` ou `tcpdump`
-
-Arranque rapido:
-
-```bash
-python3 playground_ui/server.py
-```
-
-Depois abrir:
-
-```text
-http://127.0.0.1:8787
-```
-
 ## Observacoes
 
 - Os scripts em `runs/` foram organizados por progressao para facilitar demonstracao e regressao.
