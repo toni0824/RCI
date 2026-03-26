@@ -322,6 +322,22 @@ static void handle_msg(state_t *st, neighbor_t *n, const char *line) {
         int advertised = atoi(t[2]);
         rt->advertised[idx] = advertised;
         monitor_log(st, "<- ROUTE %s %d de %s", t[1], advertised, n->id);
+
+        /* A direct neighbor announcing itself with distance 0 must become
+           a usable one-hop route immediately. This matches the resident
+           nodes on tejo, which may advertise before any other update logic
+           runs on our side. */
+        if (advertised == 0 && strncmp(t[1], n->id, 2) == 0) {
+            bool changed = !rt->valid || rt->distance != 1 || strncmp(rt->successor, n->id, 2) != 0;
+            rt->valid = true;
+            rt->distance = 1;
+            rt->state = ROUTE_STATE_EXPEDITION;
+            strncpy(rt->successor, n->id, sizeof(rt->successor) - 1);
+            rt->successor[sizeof(rt->successor) - 1] = 0;
+            if (changed) send_route_to_all(st, rt, n);
+            return;
+        }
+
         if (route_update_from_advertisements(st, rt)) {
             if (rt->state == ROUTE_STATE_EXPEDITION) {
                 send_route_to_all(st, rt, n);
