@@ -7,19 +7,29 @@ TMP_DIR="$ROOT_DIR/.scenario_tmp"
 
 LOCAL_IP="${1:-10.19.233.157}"
 LOCAL_TCP="${2:-58004}"
-REG_UDP="${3:-58861}"
-GROUP_ID="${4:-106}"
+GROUP_ID="${3:-106}"
+SETUP_TYPE="${4:-A}"
 LOCAL_ID="${5:-40}"
 ID10="${6:-10}"
-UDP10="${7:-58862}"
-ID20="${8:-20}"
-UDP20="${9:-58863}"
-ID30="${10:-30}"
-UDP30="${11:-58864}"
-SESSION_CODE="${12:-2589460}"
+ID20="${7:-20}"
+ID30="${8:-30}"
 
 mkdir -p "$TMP_DIR"
 make -C "$ROOT_DIR"
+
+INIT_HTML="$ROOT_DIR/init.html"
+echo "$GROUP_ID:$SETUP_TYPE" | nc tejo.tecnico.ulisboa.pt 59011 > "$INIT_HTML"
+
+REG_UDP="$(perl -ne 'print "$1\n" if /NODE SERVER AT IP:[^ ]+\s+PORT:(\d+)/' "$INIT_HTML" | head -n1)"
+SESSION_CODE="$(perl -ne 'print "$1\n" if /SESSION ACCESS CODE:\s*(\d+)/' "$INIT_HTML" | head -n1)"
+UDP10="$(perl -ne 'print "$1\n" if /\b'"$ID10"': \[[^ ]+ (\d+)\]/' "$INIT_HTML" | head -n1)"
+UDP20="$(perl -ne 'print "$1\n" if /\b'"$ID20"': \[[^ ]+ (\d+)\]/' "$INIT_HTML" | head -n1)"
+UDP30="$(perl -ne 'print "$1\n" if /\b'"$ID30"': \[[^ ]+ (\d+)\]/' "$INIT_HTML" | head -n1)"
+
+if [[ -z "$REG_UDP" || -z "$SESSION_CODE" || -z "$UDP10" || -z "$UDP20" || -z "$UDP30" ]]; then
+  echo "Falha ao ler dados da sessao em init.html"
+  exit 1
+fi
 
 cat > "$TMP_DIR/tejo_final_local.sh" <<EOF
 #!/bin/zsh
@@ -67,6 +77,8 @@ sleep 18
 printf "remove edge $ID20\n" | nc -u -w 1 tejo.tecnico.ulisboa.pt "$UDP10" || true
 sleep 3
 printf "RP$SESSION_CODE $UDP10\n" | nc -w 1 tejo.tecnico.ulisboa.pt 59011 > "$ROOT_DIR/tejo_rep_final_${UDP10}.html" || true
+sleep 1
+printf "FIN$SESSION_CODE\n" | nc -w 1 tejo.tecnico.ulisboa.pt 59011 > "$ROOT_DIR/rep.html" || true
 echo "[tejo final remote] report saved to tejo_rep_final_${UDP10}.html"
 exec zsh
 EOF
@@ -108,4 +120,4 @@ echo "Tejo final scenario launched."
 echo "Local node: $LOCAL_ID at $LOCAL_IP:$LOCAL_TCP"
 echo "Node server: 193.136.138.142:$REG_UDP"
 echo "Residents: $ID10/$UDP10 $ID20/$UDP20 $ID30/$UDP30"
-echo "Group: $GROUP_ID | Session code: $SESSION_CODE"
+echo "Group: $GROUP_ID | Setup: $SETUP_TYPE | Session code: $SESSION_CODE"
