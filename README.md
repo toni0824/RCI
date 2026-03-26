@@ -247,6 +247,14 @@ Nota:
 
 Foram adicionados varios scripts para validar cenarios diferentes no macOS:
 
+- Estrutura atual em pastas:
+  - `runs/01_basic_tejo/`
+  - `runs/02_direct/`
+  - `runs/03_intermediate/`
+  - `runs/04_message/`
+  - `runs/05_final/`
+  - os comandos antigos na raiz continuam a funcionar como wrappers
+
 - `./run_intermediate_scenario_mac.sh`
   - testa a parte intermédia com servidor UDP
   - cobre `join`, `show nodes`, `add edge`, `show neighbors`, `remove edge`, `leave`
