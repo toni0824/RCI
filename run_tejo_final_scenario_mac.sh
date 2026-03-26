@@ -31,19 +31,15 @@ cd "$ROOT_DIR"
   echo "start monitor"
   sleep 2
   echo "add edge $ID30"
+  sleep 10
+  echo "add edge $ID10"
   sleep 5
-  echo "show neighbors"
-  sleep 8
   echo "show routing $ID10"
   sleep 1
   echo "message $ID10 ola"
-  sleep 6
-  echo "add edge $ID10"
-  sleep 4
-  echo "show routing $ID10"
-  sleep 10
+  sleep 12
   echo "remove edge $ID10"
-  sleep 10
+  sleep 8
   echo "show routing $ID10"
   sleep 10
   echo "show routing $ID10"
@@ -63,9 +59,11 @@ cd "$ROOT_DIR"
 echo "[tejo final remote] residents: $ID10/$UDP10 $ID20/$UDP20 $ID30/$UDP30"
 sleep 6
 printf "announce\n" | nc -u -w 1 tejo.tecnico.ulisboa.pt "$UDP10" || true
-sleep 18
+sleep 24
 printf "remove edge $ID20\n" | nc -u -w 1 tejo.tecnico.ulisboa.pt "$UDP10" || true
-sleep 3
+sleep 1
+printf "remove edge $ID10\n" | nc -u -w 1 tejo.tecnico.ulisboa.pt "$UDP20" || true
+sleep 5
 printf "RP$SESSION_CODE $UDP10\n" | nc -w 1 tejo.tecnico.ulisboa.pt 59011 > "$ROOT_DIR/tejo_rep_final_${UDP10}.html" || true
 echo "[tejo final remote] report saved to tejo_rep_final_${UDP10}.html"
 exec zsh
@@ -80,9 +78,9 @@ until nc -z "$LOCAL_IP" "$LOCAL_TCP" >/dev/null 2>&1; do
 done
 echo "[tejo final nc] local node is up"
 {
-  sleep 27
+  sleep 22
   echo "NEIGHBOR 99"
-  sleep 18
+  sleep 22
   echo "UNCOORD $ID10"
   sleep 5
 } | nc "$LOCAL_IP" "$LOCAL_TCP"
