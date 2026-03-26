@@ -495,7 +495,9 @@ static int connect_to_neighbor(state_t *st, const char *id, const char *ip, uint
 
     n->fd = fd;
     n->active = true;
-    n->handshake = false;
+    /* Outgoing edges are usable immediately after connect() + NEIGHBOR.
+       The tejo resident nodes do not send a reciprocal NEIGHBOR back. */
+    n->handshake = true;
     strncpy(n->ip, ip, sizeof(n->ip) - 1);
     n->ip[sizeof(n->ip) - 1] = 0;
     n->port = port;
