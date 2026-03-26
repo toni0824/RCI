@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP_DIR="$ROOT_DIR/.scenario_tmp"
-IP="${1:-10.19.5.49}"
+IP="${1:-127.0.0.1}"
 P1=58001
 P2=58002
 P3=58003

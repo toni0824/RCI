@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP_DIR="$ROOT_DIR/.scenario_tmp"
-IP="${1:-10.19.5.49}"
+IP="${1:-127.0.0.1}"
 REG_PORT=59000
 P1=58001
 P2=58002
@@ -19,7 +19,7 @@ cat > "$TMP_DIR/run_server.sh" <<EOF
 #!/bin/zsh
 cd "$ROOT_DIR"
 echo "[server] starting UDP registry on $IP:$REG_PORT"
-python3 59000.py "$IP" "$REG_PORT"
+python3 59000.py "0.0.0.0" "$REG_PORT"
 EOF
 
 cat > "$TMP_DIR/run_t1.sh" <<EOF
