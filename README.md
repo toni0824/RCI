@@ -287,3 +287,4 @@ Isto confirma que:
 - Os scripts locais usam `127.0.0.1` por omissao e o servidor local faz bind em `0.0.0.0` para evitar problemas ao mudar de rede.
 - Os scripts do `tejo` assumem que a sessao ja foi aberta manualmente e que os parametros foram copiados do `init.html`.
 - Se a sessao do `tejo` ficar bloqueada, e necessario fechar com `FIN<codigo>` ou esperar o timeout da plataforma.
+- https://www.f-h.pt/c/7MgfpAuknhJ_u_DxQtKPIQ
